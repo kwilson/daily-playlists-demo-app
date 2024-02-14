@@ -1,7 +1,6 @@
 import { ActionFunction } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react';
 import { SpotifyApi } from '@spotify/web-api-ts-sdk';
-import { z } from 'zod';
 import { environment } from '~/environment.server';
 import { parseResults } from '../utils/parseResults';
 
@@ -46,7 +45,7 @@ export default function Index() {
   const actionData = useActionData<ReturnType<typeof parseResults>>();
 
   return (
-    <main style={{ fontFamily: 'system-ui, sans-serif', lineHeight: '1.4' }}>
+    <main>
       <Form method="post">
         <fieldset>
           <input type="search" name={searchTermFieldName} />
