@@ -1,12 +1,9 @@
-import { ActionFunction } from '@netlify/remix-runtime';
+import { ActionFunction } from '@remix-run/node';
 import { Form, useActionData } from '@remix-run/react';
-import {
-  SpotifyApi,
-  PartialSearchResult,
-  Track,
-} from '@spotify/web-api-ts-sdk';
+import { SpotifyApi } from '@spotify/web-api-ts-sdk';
 import { z } from 'zod';
 import { environment } from '~/environment.server';
+import { parseResults } from '../utils/parseResults';
 
 export function headers({
   loaderHeaders,
@@ -27,62 +24,22 @@ export function headers({
 
 const searchTermFieldName = 'searchTerm';
 
-const trackResult = z.object({
-  id: z.string(),
-  name: z.string(),
-  duration_ms: z.number(),
-  artists: z.array(
-    z.object({
-      id: z.string(),
-      name: z.string(),
-    }),
-  ),
-  album: z.object({
-    name: z.string(),
-    release_date: z.string(),
-    images: z.array(
-      z.object({
-        height: z.number(),
-        width: z.number(),
-        url: z.string(),
-      }),
-    ),
-  }),
-  external_urls: z.object({
-    spotify: z.string(),
-  }),
-});
-
-function parseResult(track: Track) {
-  return trackResult.parse(track);
-}
-
-function parseResults(result: Required<Pick<PartialSearchResult, 'tracks'>>) {
-  return { tracks: result.tracks.items.map(parseResult), raw: result };
-}
-
 export const action: ActionFunction = async ({ request }) => {
-  try {
-    const formData = await request.formData();
-    const searchTerm = formData.get(searchTermFieldName);
-    console.log({ searchTerm });
+  const formData = await request.formData();
+  const searchTerm = formData.get(searchTermFieldName);
 
-    const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = environment();
-    const sdk = SpotifyApi.withClientCredentials(
-      SPOTIFY_CLIENT_ID,
-      SPOTIFY_CLIENT_SECRET,
-    );
+  const { SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET } = environment();
+  const sdk = SpotifyApi.withClientCredentials(
+    SPOTIFY_CLIENT_ID,
+    SPOTIFY_CLIENT_SECRET,
+  );
 
-    if (!searchTerm || typeof searchTerm !== 'string') {
-      return { ok: false };
-    }
-
-    const result = await sdk.search(searchTerm, ['track'], undefined, 10);
-    console.log({ result });
-    return parseResults(result);
-  } catch (e) {
-    return { error: e };
+  if (!searchTerm || typeof searchTerm !== 'string') {
+    return { ok: false };
   }
+
+  const result = await sdk.search(searchTerm, ['track']);
+  return parseResults(result);
 };
 
 export default function Index() {
