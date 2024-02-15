@@ -18,3 +18,10 @@ model SearchTerms {
   updatedAt       DateTime  @updatedAt
   value           String    @db.VarChar(255)
 }
+
+model ViewedTracks {
+  id              String    @db.VarChar(25) @id
+  name            String    @db.VarChar(255)
+  artist          String    @db.VarChar(255)
+  createdAt       DateTime  @default(now())
+}

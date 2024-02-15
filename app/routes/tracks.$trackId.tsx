@@ -1,3 +1,4 @@
+import { PrismaClient } from '@prisma/client';
 import { LoaderFunctionArgs, redirect } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { useMemo } from 'react';
@@ -23,7 +24,23 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
     });
   }
 
-  return parseResult(track);
+  const parsedTrack = parseResult(track);
+
+  const prisma = new PrismaClient();
+  try {
+    await prisma.viewedTracks.create({
+      data: {
+        id: parsedTrack.id,
+        name: parsedTrack.name,
+        artist: parsedTrack.artists.map((x) => x.name).join(', '),
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    await prisma.$disconnect();
+  }
+
+  return parsedTrack;
 };
 
 export default function TrackDetails() {
@@ -41,8 +58,6 @@ export default function TrackDetails() {
     () => millisToMinutesAndSeconds(track.durationMs),
     [],
   );
-
-  console.log({ track });
 
   return (
     <div className="cursor-pointer flex flex-col gap-4 items-center p-4">

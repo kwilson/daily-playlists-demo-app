@@ -6,6 +6,7 @@ import { Button } from '~/components/Button';
 import { TrackInfo } from '~/components/TrackInfo';
 import { create as createSpotifySdk } from '~/utils/spotifySdkFactory.server';
 import { PrismaClient } from '@prisma/client';
+import { Anchor } from '~/components/Anchor';
 
 export function headers() {
   return {
@@ -31,7 +32,7 @@ export const loader = async () => {
   const prisma = new PrismaClient();
 
   try {
-    const searchTerms = await prisma.searchTerms.findMany({
+    const recentSearches = await prisma.searchTerms.findMany({
       where: {},
       distinct: ['value'],
       orderBy: {
@@ -44,7 +45,21 @@ export const loader = async () => {
       take: 20,
     });
 
-    return searchTerms;
+    const recentTracks = await prisma.viewedTracks.findMany({
+      where: {},
+      distinct: ['id'],
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        name: true,
+        artist: true,
+      },
+      take: 20,
+    });
+
+    return { recentSearches, recentTracks };
   } catch (e) {
     console.error(e);
     await prisma.$disconnect();
@@ -83,37 +98,52 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
 export default function Index() {
   const fetcher = useFetcher<typeof action>();
-  const previousSearches = useLoaderData<typeof loader>();
+  const { recentSearches, recentTracks } = useLoaderData<typeof loader>();
   const isSearching = fetcher.state !== 'idle';
 
   const data = fetcher.data;
 
   return (
-    <div className="flex flex-col items-center p-4">
-      <div className="mb-4">
-        <fetcher.Form method="post">
-          <fieldset className="flex gap-2 group" disabled={isSearching}>
-            <SearchField label="Track Name" name={searchTermFieldName} />
+    <div className="flex flex-col items-center p-4 gap-8 w-full">
+      <fetcher.Form
+        className="flex justify-center gap-2 group w-full"
+        method="post"
+      >
+        <fieldset className="contents" disabled={isSearching}>
+          <SearchField label="Track Name" name={searchTermFieldName} />
+          <Button type="submit">Search</Button>
+        </fieldset>
+      </fetcher.Form>
 
-            <Button type="submit">Search</Button>
-          </fieldset>
-        </fetcher.Form>
-      </div>
+      {!data?.ok && recentTracks.length > 0 && (
+        <div className="text-center mt-4">
+          <h2 className="text-xl mb-2">Recent Tracks</h2>
+          <ul className="flex flex-col gap-2 justify-center">
+            {recentTracks.map((track) => (
+              <li key={track.id}>
+                <Anchor to={`/tracks/${track.id}`}>
+                  {track.name} / {track.artist}
+                </Anchor>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
-      {!data?.ok && previousSearches.length && (
+      {!data?.ok && recentSearches.length > 0 && (
         <div className="text-center mt-4">
           <h2 className="text-xl mb-2">Recent Searches</h2>
           <ul className="flex flex-wrap gap-2 justify-center">
-            {previousSearches.map((previousSearch) => (
-              <li key={previousSearch.id}>
+            {recentSearches.map((search) => (
+              <li key={search.id}>
                 <fetcher.Form method="post">
                   <input
                     type="hidden"
                     name={searchTermFieldName}
-                    value={previousSearch.value}
+                    value={search.value}
                   />
                   <Button type="submit">
-                    <span className="lowercase">{previousSearch.value}</span>
+                    <span className="lowercase">{search.value}</span>
                   </Button>
                 </fetcher.Form>
               </li>

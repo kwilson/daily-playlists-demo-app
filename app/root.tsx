@@ -61,7 +61,7 @@ export function ErrorBoundary() {
       <body>
         <Main>
           <header className=" text-center">
-            <h1 className="text-6xl leading-normal text-electric-violet-200">
+            <h1 className="text-6xl leading-none text-electric-violet-200">
               <Anchor to="/">Song Searcher</Anchor>
             </h1>
           </header>
