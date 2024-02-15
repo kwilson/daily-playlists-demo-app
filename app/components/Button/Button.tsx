@@ -1,7 +1,7 @@
 import type { ComponentProps } from 'react';
 import { VariantProps, cx } from 'class-variance-authority';
 
-type ButtonProps = Exclude<ComponentProps<'button'>, 'className'>;
+type ButtonProps = Omit<ComponentProps<'button'>, 'className'>;
 
 export function Button(props: ButtonProps) {
   const className = cx(

@@ -103,7 +103,7 @@ export default function Index() {
       {!data?.ok && previousSearches.length && (
         <div className="text-center mt-4">
           <h2 className="text-xl mb-2">Recent Searches</h2>
-          <ul className="flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2 justify-center">
             {previousSearches.map((previousSearch) => (
               <li key={previousSearch.id}>
                 <fetcher.Form method="post">
@@ -112,7 +112,9 @@ export default function Index() {
                     name={searchTermFieldName}
                     value={previousSearch.value}
                   />
-                  <Button type="submit">{previousSearch.value}</Button>
+                  <Button type="submit">
+                    <span className="lowercase">{previousSearch.value}</span>
+                  </Button>
                 </fetcher.Form>
               </li>
             ))}
