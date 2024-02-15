@@ -60,11 +60,11 @@ export default function TrackDetails() {
   );
 
   return (
-    <div className="cursor-pointer flex flex-col gap-4 items-center p-4">
+    <div className="flex flex-col gap-4 items-center p-4">
       <div>
         {imageData && (
           <img
-            className="h-auto max-w-96 border border-black"
+            className="h-auto w-full max-w-96 border border-black"
             src={imageData.url}
             height={imageData.height}
             width={imageData.width}

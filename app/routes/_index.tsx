@@ -7,6 +7,7 @@ import { TrackInfo } from '~/components/TrackInfo';
 import { create as createSpotifySdk } from '~/utils/spotifySdkFactory.server';
 import { PrismaClient } from '@prisma/client';
 import { Anchor } from '~/components/Anchor';
+import { Spinner } from '~/components/Spinner';
 
 export function headers() {
   return {
@@ -42,7 +43,7 @@ export const loader = async () => {
         id: true,
         value: true,
       },
-      take: 20,
+      take: 10,
     });
 
     const recentTracks = await prisma.viewedTracks.findMany({
@@ -56,7 +57,7 @@ export const loader = async () => {
         name: true,
         artist: true,
       },
-      take: 20,
+      take: 10,
     });
 
     return { recentSearches, recentTracks };
@@ -110,8 +111,14 @@ export default function Index() {
         method="post"
       >
         <fieldset className="contents" disabled={isSearching}>
-          <SearchField label="Track Name" name={searchTermFieldName} />
-          <Button type="submit">Search</Button>
+          <SearchField
+            placeholder="Hey Jude"
+            label="Track Name"
+            name={searchTermFieldName}
+          />
+          <Button busy={isSearching} type="submit">
+            Search
+          </Button>
         </fieldset>
       </fetcher.Form>
 

@@ -14,9 +14,7 @@ import { Anchor } from './components/Anchor';
 
 export const meta: MetaFunction = () => [
   {
-    charset: 'utf-8',
     title: 'Daily Playlists Demo App',
-    viewport: 'width=device-width,initial-scale=1',
   },
 ];
 
@@ -28,13 +26,15 @@ export default function App() {
   return (
     <html className="bg-app-bg" lang="en">
       <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
       </head>
       <body>
         <Main>
-          <header className=" text-center">
-            <h1 className="text-6xl leading-normal text-electric-violet-200">
+          <header className="text-center">
+            <h1 className="text-4xl md:text-6xl leading-normal text-electric-violet-200">
               <Anchor to="/">Song Searcher</Anchor>
             </h1>
           </header>
