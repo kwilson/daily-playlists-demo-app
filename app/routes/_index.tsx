@@ -121,7 +121,7 @@ export default function Index() {
       )}
 
       {data?.ok && (
-        <div className="flex flex-col flex-wrap gap-4 justify-between">
+        <div className="flex flex-col flex-wrap gap-4 justify-between max-w-prose">
           {data.tracks.map((track) => (
             <TrackInfo track={track} key={track?.id} />
           ))}

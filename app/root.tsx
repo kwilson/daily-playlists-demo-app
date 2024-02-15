@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useRouteError,
 } from '@remix-run/react';
 import stylesheet from '~/tailwind.css';
 import { Main } from './components/Main';
@@ -42,6 +43,37 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  return (
+    <html className="bg-app-bg" lang="en">
+      <head>
+        <title>Oh no!</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Main>
+          <header className=" text-center">
+            <h1 className="text-6xl leading-normal text-electric-violet-200">
+              <Anchor to="/">Song Searcher</Anchor>
+            </h1>
+          </header>
+          <div className="text-center flex flex-col gap-4">
+            <p>Sorry, something has gone wrong loading this page.</p>
+
+            <p>
+              <Anchor to="/">Home</Anchor>
+            </p>
+          </div>
+        </Main>
+        <Scripts />
       </body>
     </html>
   );
