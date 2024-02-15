@@ -1,9 +1,10 @@
 import { cx } from 'class-variance-authority';
 import { ComponentProps } from 'react';
+import { Link } from '@remix-run/react';
 
-type AnchorProps = Omit<ComponentProps<'a'>, 'className'>;
+type AnchorProps = Omit<ComponentProps<typeof Link>, 'className'>;
 
-export function Anchor({ children, ...props }: AnchorProps) {
+export function Anchor({ children, to, ...props }: AnchorProps) {
   const className = cx(
     'text-electric-violet-500',
     'hover:text-electric-violet-600',
@@ -13,8 +14,8 @@ export function Anchor({ children, ...props }: AnchorProps) {
   );
 
   return (
-    <a className={className} {...props}>
+    <Link className={className} to={to} {...props}>
       {children}
-    </a>
+    </Link>
   );
 }

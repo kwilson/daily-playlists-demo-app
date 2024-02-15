@@ -9,6 +9,7 @@ import {
 } from '@remix-run/react';
 import stylesheet from '~/tailwind.css';
 import { Main } from './components/Main';
+import { Anchor } from './components/Anchor';
 
 export const meta: MetaFunction = () => [
   {
@@ -33,7 +34,7 @@ export default function App() {
         <Main>
           <header className=" text-center">
             <h1 className="text-6xl leading-normal text-electric-violet-200">
-              <a href="/">Song Searcher</a>
+              <Anchor to="/">Song Searcher</Anchor>
             </h1>
           </header>
           <Outlet />

@@ -67,7 +67,7 @@ export default function TrackDetails() {
       </div>
 
       <p>
-        <Anchor href="/">Home</Anchor>
+        <Anchor to="/">Home</Anchor>
       </p>
     </div>
   );
