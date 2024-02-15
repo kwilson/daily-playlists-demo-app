@@ -6,11 +6,11 @@ type AnchorProps = Omit<ComponentProps<typeof Link>, 'className'>;
 
 export function Anchor({ children, to, ...props }: AnchorProps) {
   const className = cx(
-    'text-electric-violet-500',
-    'hover:text-electric-violet-600',
-    'active:text-electric-violet-700',
-    'disabled:text-electric-violet-200',
-    'group-disabled:text-electric-violet-200',
+    'text-electric-violet-300',
+    'hover:text-electric-violet-400',
+    'active:text-electric-violet-500',
+    'disabled:text-electric-violet-400',
+    'group-disabled:text-electric-violet-400',
   );
 
   return (
