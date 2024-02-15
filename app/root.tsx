@@ -8,6 +8,7 @@ import {
   ScrollRestoration,
 } from '@remix-run/react';
 import stylesheet from '~/tailwind.css';
+import { Main } from './components/Main';
 
 export const meta: MetaFunction = () => [
   {
@@ -23,13 +24,20 @@ export const links: LinksFunction = () => [
 
 export default function App() {
   return (
-    <html lang="en">
+    <html className="bg-app-bg" lang="en">
       <head>
         <Meta />
         <Links />
       </head>
       <body>
-        <Outlet />
+        <Main>
+          <header className=" text-center">
+            <h1 className="text-6xl leading-normal text-electric-violet-200">
+              <a href="/">Song Searcher</a>
+            </h1>
+          </header>
+          <Outlet />
+        </Main>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
