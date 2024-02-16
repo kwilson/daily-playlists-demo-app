@@ -2,6 +2,8 @@
 
 Basic app to allow searching of tracks via the Spotify API, then selecting a track for a (limited) details view.
 
+Live demo app: https://daily-playlists-demo-app.netlify.app/
+
 ## Development
 
 Set prerequisite values in a `.env` file:
