@@ -39,6 +39,15 @@ export default function App() {
             </h1>
           </header>
           <Outlet />
+
+          <footer className="py-8 mt-8 border-t border-electric-violet-400 text-center">
+            <p className="text-electric-violet-100">
+              Code available on{' '}
+              <Anchor to="https://github.com/kwilson/daily-playlists-demo-app">
+                Github
+              </Anchor>
+            </p>
+          </footer>
         </Main>
         <ScrollRestoration />
         <Scripts />
