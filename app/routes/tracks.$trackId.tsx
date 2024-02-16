@@ -1,8 +1,8 @@
-import { PrismaClient } from '@prisma/client';
 import { LoaderFunctionArgs, redirect } from '@remix-run/node';
 import { useLoaderData } from '@remix-run/react';
 import { useMemo } from 'react';
 import { Anchor } from '~/components/Anchor';
+import { createTrackViewRecord } from '~/data/createTrackViewRecord.server';
 import { millisToMinutesAndSeconds } from '~/utils/millisToMinutesAndSeconds';
 import { parseResult } from '~/utils/parseResults';
 import { create as createSpotifySdk } from '~/utils/spotifySdkFactory.server';
@@ -25,20 +25,11 @@ export const loader = async ({ params }: LoaderFunctionArgs) => {
   }
 
   const parsedTrack = parseResult(track);
-
-  const prisma = new PrismaClient();
-  try {
-    await prisma.viewedTracks.create({
-      data: {
-        id: parsedTrack.id,
-        name: parsedTrack.name,
-        artist: parsedTrack.artists.map((x) => x.name).join(', '),
-      },
-    });
-  } catch (e) {
-    console.error(e);
-    await prisma.$disconnect();
-  }
+  await createTrackViewRecord({
+    id: parsedTrack.id,
+    name: parsedTrack.name,
+    artist: parsedTrack.artists.map((x) => x.name).join(', '),
+  });
 
   return parsedTrack;
 };

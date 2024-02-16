@@ -1,21 +1,19 @@
-import { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/node';
-import { useFetcher, useLoaderData } from '@remix-run/react';
+import { ActionFunctionArgs } from '@remix-run/node';
+import {
+  Form,
+  useActionData,
+  useLoaderData,
+  useNavigation,
+} from '@remix-run/react';
 import { TrackDetails, parseResults } from '../utils/parseResults';
 import { SearchField } from '~/components/SearchField';
 import { Button } from '~/components/Button';
 import { TrackInfo } from '~/components/TrackInfo';
 import { create as createSpotifySdk } from '~/utils/spotifySdkFactory.server';
-import { PrismaClient } from '@prisma/client';
 import { Anchor } from '~/components/Anchor';
-import { Spinner } from '~/components/Spinner';
-
-export function headers() {
-  return {
-    // This is an example of how to set caching headers for a route
-    // For more info on headers in Remix, see: https://remix.run/docs/en/v1/route/headers
-    'Cache-Control': 'public, max-age=60, s-maxage=60',
-  };
-}
+import { getRecentSearches } from '~/data/getRecentSearches.server';
+import { getRecentlyViewedTracks } from '~/data/getRecentlyViewedTracks.server';
+import { createSearchResultRecord } from '~/data/createSearchResultRecord.server';
 
 const searchTermFieldName = 'searchTerm';
 
@@ -30,40 +28,15 @@ type FailureResult = {
 };
 
 export const loader = async () => {
-  const prisma = new PrismaClient();
-
   try {
-    const recentSearches = await prisma.searchTerms.findMany({
-      where: {},
-      distinct: ['value'],
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        value: true,
-      },
-      take: 10,
-    });
-
-    const recentTracks = await prisma.viewedTracks.findMany({
-      where: {},
-      distinct: ['id'],
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        name: true,
-        artist: true,
-      },
-      take: 10,
-    });
+    const [recentSearches, recentTracks] = await Promise.all([
+      getRecentSearches(10),
+      getRecentlyViewedTracks(10),
+    ]);
 
     return { recentSearches, recentTracks };
   } catch (e) {
     console.error(e);
-    await prisma.$disconnect();
   }
 };
 
@@ -71,56 +44,48 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const searchTerm = formData.get(searchTermFieldName);
 
-  const sdk = createSpotifySdk();
-
   if (!searchTerm || typeof searchTerm !== 'string') {
     const failureResult: FailureResult = { ok: false };
     return failureResult;
   }
 
-  const prisma = new PrismaClient();
-
   try {
-    await prisma.searchTerms.create({
-      data: {
-        value: searchTerm,
-      },
-    });
+    const sdk = createSpotifySdk();
+    const [result] = await Promise.all([
+      sdk.search(searchTerm, ['track']),
+      createSearchResultRecord(searchTerm),
+    ]);
 
-    const result = await sdk.search(searchTerm, ['track']);
     const response: SuccessResult = { ok: true, tracks: parseResults(result) };
     return response;
   } catch (e) {
     console.error(e);
-    await prisma.$disconnect();
     return null;
   }
 };
 
 export default function Index() {
-  const fetcher = useFetcher<typeof action>();
+  const data = useActionData<typeof action>();
   const { recentSearches, recentTracks } = useLoaderData<typeof loader>();
-  const isSearching = fetcher.state !== 'idle';
 
-  const data = fetcher.data;
+  const transition = useNavigation();
+  const isSearching = transition.state !== 'idle';
 
   return (
     <div className="flex flex-col items-center p-4 gap-8 w-full">
-      <fetcher.Form
-        className="flex justify-center gap-2 group w-full"
-        method="post"
-      >
+      <Form className="flex justify-center gap-2 group w-full" method="post">
         <fieldset className="contents" disabled={isSearching}>
           <SearchField
             placeholder="Hey Jude"
             label="Track Name"
             name={searchTermFieldName}
+            required
           />
           <Button busy={isSearching} type="submit">
             Search
           </Button>
         </fieldset>
-      </fetcher.Form>
+      </Form>
 
       {!data?.ok && recentTracks.length > 0 && (
         <div className="text-center mt-4">
@@ -143,7 +108,7 @@ export default function Index() {
           <ul className="flex flex-wrap gap-2 justify-center">
             {recentSearches.map((search) => (
               <li key={search.id}>
-                <fetcher.Form method="post">
+                <Form method="post">
                   <input
                     type="hidden"
                     name={searchTermFieldName}
@@ -152,7 +117,7 @@ export default function Index() {
                   <Button type="submit">
                     <span className="lowercase">{search.value}</span>
                   </Button>
-                </fetcher.Form>
+                </Form>
               </li>
             ))}
           </ul>

@@ -33,7 +33,7 @@ export default function App() {
       </head>
       <body>
         <Main>
-          <header className="text-center">
+          <header className="text-center p-4">
             <h1 className="text-4xl md:text-6xl leading-normal text-electric-violet-200">
               <Anchor to="/">Song Searcher</Anchor>
             </h1>
